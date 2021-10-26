@@ -346,7 +346,7 @@ void run_Application(void)
 bool __WEAK bootloader_Trigger(void)
 {
     /* Function can be overriden with custom implementation */
-    return false;
+    return true;
 }
 
 void bootloader_Tasks(void)

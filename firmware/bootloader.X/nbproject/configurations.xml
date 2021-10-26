@@ -66,7 +66,6 @@
             <itemPath>../src/packs/ATSAME51J20A_DFP/component/eic.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/component/evsys.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/component/freqm.h</itemPath>
-            <itemPath>../src/packs/ATSAME51J20A_DFP/component/fuses.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/component/gclk.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/component/hmatrixb.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/component/i2s.h</itemPath>
@@ -109,7 +108,6 @@
             <itemPath>../src/packs/ATSAME51J20A_DFP/instance/eic.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/instance/evsys.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/instance/freqm.h</itemPath>
-            <itemPath>../src/packs/ATSAME51J20A_DFP/instance/fuses.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/instance/gclk.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/instance/hmatrix.h</itemPath>
             <itemPath>../src/packs/ATSAME51J20A_DFP/instance/i2s.h</itemPath>
@@ -187,6 +185,7 @@
           <itemPath>../src/config/default/ATSAME51J20A.ld</itemPath>
         </logicalFolder>
       </logicalFolder>
+      <itemPath>../src/config/default/btl.ld</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -269,7 +268,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>Simulator</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>2.10</languageToolchainVersion>
+        <languageToolchainVersion>3.01</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
@@ -492,6 +491,12 @@
         <property key="W0111_SIM_UNSUPPORTED_SELECTION" value="report"/>
         <property key="W2700_MPU_ILLEGAL_DREGION" value="report"/>
       </Simulator>
+      <Tool>
+        <property key="W0103_SIM_PERIPH_FAILED" value="report"/>
+        <property key="W0106_SIM_PERIPH_PARTIAL_SUPPORT" value="report"/>
+        <property key="W0111_SIM_UNSUPPORTED_SELECTION" value="report"/>
+        <property key="W2700_MPU_ILLEGAL_DREGION" value="report"/>
+      </Tool>
     </conf>
   </confs>
 </configurationDescriptor>
