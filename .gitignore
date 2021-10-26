@@ -1,4 +1,5 @@
 firmware/bootloader.X/.generated_files
 firmware/bootloader.X/debug
+firmware/bootloader.X/nbproject/private/private.xml
 *.swp
 *.o
