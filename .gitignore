@@ -1,0 +1,4 @@
+firmware/bootloader.X/.generated_files
+firmware/bootloader.X/debug
+*.swp
+*.o
