@@ -158,12 +158,12 @@ static void input_task(void)
         return;
     }
 
-    if (SERCOM2_USART_ReceiverIsReady() == false)
+    if (SERCOM0_USART_ReceiverIsReady() == false)
     {
         return;
     }
 
-    input_data = SERCOM2_USART_ReadByte();
+    input_data = SERCOM0_USART_ReadByte();
 
     /* Check if 100 ms have elapsed */
     if (SYSTICK_TimerPeriodHasExpired())
@@ -179,7 +179,7 @@ static void input_task(void)
         {
             if (input_buffer[GUARD_OFFSET] != BTL_GUARD)
             {
-                SERCOM2_USART_WriteByte(BL_RESP_ERROR);
+                SERCOM0_USART_WriteByte(BL_RESP_ERROR);
             }
             else
             {
@@ -225,13 +225,13 @@ static void command_task(void)
         {
             unlock_begin = begin;
             unlock_end = end;
-            SERCOM2_USART_WriteByte(BL_RESP_OK);
+            SERCOM0_USART_WriteByte(BL_RESP_OK);
         }
         else
         {
             unlock_begin = 0;
             unlock_end = 0;
-            SERCOM2_USART_WriteByte(BL_RESP_ERROR);
+            SERCOM0_USART_WriteByte(BL_RESP_ERROR);
         }
     }
     else if (BL_CMD_DATA == input_command)
@@ -245,11 +245,11 @@ static void command_task(void)
 
             flash_data_ready = true;
 
-            SERCOM2_USART_WriteByte(BL_RESP_OK);
+            SERCOM0_USART_WriteByte(BL_RESP_OK);
         }
         else
         {
-            SERCOM2_USART_WriteByte(BL_RESP_ERROR);
+            SERCOM0_USART_WriteByte(BL_RESP_ERROR);
         }
     }
     else if (BL_CMD_VERIFY == input_command)
@@ -260,29 +260,29 @@ static void command_task(void)
         crc_gen = crc_generate();
 
         if (crc == crc_gen)
-            SERCOM2_USART_WriteByte(BL_RESP_CRC_OK);
+            SERCOM0_USART_WriteByte(BL_RESP_CRC_OK);
         else
-            SERCOM2_USART_WriteByte(BL_RESP_CRC_FAIL);
+            SERCOM0_USART_WriteByte(BL_RESP_CRC_FAIL);
     }
     else if (BL_CMD_BKSWAP_RESET == input_command)
     {
-        SERCOM2_USART_WriteByte(BL_RESP_OK);
+        SERCOM0_USART_WriteByte(BL_RESP_OK);
 
-        while(SERCOM2_USART_TransmitComplete() == false);
+        while(SERCOM0_USART_TransmitComplete() == false);
 
         NVMCTRL_BankSwap();
     }
     else if (BL_CMD_RESET == input_command)
     {
-        SERCOM2_USART_WriteByte(BL_RESP_OK);
+        SERCOM0_USART_WriteByte(BL_RESP_OK);
 
-        while(SERCOM2_USART_TransmitComplete() == false);
+        while(SERCOM0_USART_TransmitComplete() == false);
 
         NVIC_SystemReset();
     }
     else
     {
-        SERCOM2_USART_WriteByte(BL_RESP_INVALID);
+        SERCOM0_USART_WriteByte(BL_RESP_INVALID);
     }
 
     packet_received = false;
@@ -346,7 +346,7 @@ void run_Application(void)
 bool __WEAK bootloader_Trigger(void)
 {
     /* Function can be overriden with custom implementation */
-    return true;
+    return false;
 }
 
 void bootloader_Tasks(void)
