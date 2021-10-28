@@ -47,6 +47,8 @@
 
 #define BTL_TRIGGER_LEN         8
 
+#define TRIGGER_SIGNATURE0      0x7fa5a57f
+#define TRIGGER_SIGNATURE1      ~(TRIGGER_SIGNATURE0)
 
 
 // *****************************************************************************

@@ -343,9 +343,37 @@ void run_Application(void)
     asm("bx %0"::"r" (reset_vector));
 }
 
+/* bootloading algorithm:
+ * 
+ * the bootloader first checks if there is an actual firmware to load in offset
+ * 0x2000. it does this mainly by checking if the block at 0x2000 is erased or
+ * not. if it is erased, then there is really no reason to load anything and 
+ * bootloader will simply just continue booting itself. 
+ *
+ * if it is not erased, then there is firmware to load. but bootloader now has
+ * to check if firmware instructed it to go into bootloader mode. it does this
+ * by checking for a predefined pattern in the RAM space.
+ * 
+ * firmware triggers a bootup to bootloader mode by writing a predefined pattern
+ * to the RAM space and issuing a soft reset.
+ */
 bool __WEAK bootloader_Trigger(void)
 {
-    /* Function can be overriden with custom implementation */
+    uint32_t *entry_point = (uint32_t *)APP_START_ADDRESS;
+    static const uint32_t *sram = (uint32_t *)BTL_TRIGGER_RAM_START;
+
+    /* if there is nothing to load... continue booting up bootloader */
+    if (entry_point[0] == 0xFFFFFFFF) {
+        return true;
+    }
+
+    /* if we reach here, there is firmware to load... so check if firmware
+     * instructed us to go into bootloader mode or not. */
+    if ((sram[0] == TRIGGER_SIGNATURE0) &&
+        (sram[1] == TRIGGER_SIGNATURE1)) {
+            return true;
+    }
+
     return false;
 }
 
