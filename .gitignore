@@ -6,4 +6,4 @@ firmware/bootloader.X/nbproject/private/private.xml
 tags
 firmware/bootloader.X/build
 firmware/bootloader.X/dist
-
+firmware/bootloader.X/nbproject/Makefile-*
