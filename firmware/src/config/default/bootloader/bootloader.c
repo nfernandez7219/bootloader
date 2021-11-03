@@ -332,7 +332,7 @@ static void flash_task(void)
     flash_data_ready = false;
 }
 
-static unsigned long crc32(unsigned long inCrc32, const void *buf, size_t bufLen) {
+unsigned long crc32(unsigned long inCrc32, const void *buf, size_t bufLen) {
         static const unsigned long crcTable[256] = {
          0x00000000,0x77073096,0xEE0E612C,0x990951BA,0x076DC419,0x706AF48F,0xE963A535,
          0x9E6495A3,0x0EDB8832,0x79DCB8A4,0xE0D5E91E,0x97D2D988,0x09B64C2B,0x7EB17CBD,
@@ -387,18 +387,48 @@ static unsigned long crc32(unsigned long inCrc32, const void *buf, size_t bufLen
 
 /* binary header must be located somewhere within the first 8k of application
  * firmware */
-static struct binary_header *find_binary_header(void)
+struct binary_header *find_binary_header(void)
 {
     uint32_t *start = (uint32_t *)(APP_START_ADDRESS);
     uint32_t *end = start + (ERASE_BLOCK_SIZE/sizeof(uint32_t));
     struct binary_header *hdr = NULL;
-
+#if 0
+    static const char print_report[] = "finding binary header\r\n";
+    static const char print_found[] = "found!\r\n";
+    static const char print_not_found[] = "not found!\r\n";
+    static const char size_is[] = "size is: ";
+    static const char checksum_is[] = "checksum is: ";
+    SERCOM0_USART_Write((char *)print_report, sizeof(print_report));
+#endif
+    
     for ( ; (start-1) < end; start++) {
         if (start[0] == SIGNATURE1 && start[1] == SIGNATURE2) {
             hdr = (struct binary_header *)start;
+#if 0
+            SERCOM0_USART_Write((char *)print_found, sizeof(print_found));
+
+            /* report size */
+            SERCOM0_USART_Write((char *)size_is, sizeof(size_is));
+            SERCOM0_USART_WriteByte((int)(hdr->bin_size >> 0) & 0xFF);
+            SERCOM0_USART_WriteByte((int)(hdr->bin_size >> 8) & 0xFF);
+            SERCOM0_USART_WriteByte((int)(hdr->bin_size >> 16) & 0xFF);
+            SERCOM0_USART_WriteByte((int)(hdr->bin_size >> 24) & 0xFF);
+            SERCOM0_USART_Write("\r\n", 2);
+
+            /* report checksum */
+            SERCOM0_USART_Write((char *)checksum_is, sizeof(checksum_is));
+            SERCOM0_USART_WriteByte((int)(hdr->crc32 >> 0) & 0xFF);
+            SERCOM0_USART_WriteByte((int)(hdr->crc32 >> 8) & 0xFF);
+            SERCOM0_USART_WriteByte((int)(hdr->crc32 >> 16) & 0xFF);
+            SERCOM0_USART_WriteByte((int)(hdr->crc32 >> 24) & 0xFF);
+            SERCOM0_USART_Write("\r\n", 2);
+#endif            
+            return hdr;
+            
             break;
         }
     }
+    //SERCOM0_USART_Write((char *)print_not_found, sizeof(print_not_found));
     return hdr;
 }
 
@@ -412,7 +442,7 @@ void run_Application(void)
 {
     uint32_t msp            = *(uint32_t *)(APP_START_ADDRESS);
     uint32_t reset_vector   = *(uint32_t *)(APP_START_ADDRESS + 4);
-    
+
     uint8_t *start;
     uint8_t *end;
     struct binary_header *hdr;
@@ -432,16 +462,34 @@ void run_Application(void)
     if (!(hdr = find_binary_header())) {
         return;
     }
-    start = (uint8_t *)msp;
+    start = (uint8_t *)(APP_START_ADDRESS);
     end = start + hdr->bin_size;
     tmp = (uint8_t *)hdr;
-
+    
     /* compute the initial checksum, skip the header and continue computing the 
      * checksum until we are done with the entire firmware. */
-    checksum = crc32(checksum, tmp, (size_t)(tmp - start));
+    checksum = crc32(checksum, start, (size_t)(tmp - start));
     tmp = tmp + sizeof(struct binary_header);
     checksum = crc32(checksum, tmp, (size_t)(end - tmp));
+   
+#if 0
+    static char const checksum_computed[] = "computed checksum is: ";
+    SERCOM0_USART_Write((char *)checksum_computed, sizeof(checksum_computed));
+    SERCOM0_USART_WriteByte((checksum >> 0) & 0xFF);
+    SERCOM0_USART_WriteByte((checksum >> 8) & 0xFF);
+    SERCOM0_USART_WriteByte((checksum >> 16) & 0xFF);
+    SERCOM0_USART_WriteByte((checksum >> 24) & 0xFF);
     
+    static char const checksum_matched[] = "checksums matched! booting firmware...\r\n";
+    static char const checksum_not_matched[] = "checksums did match...\r\n";
+    
+    if (hdr->crc32 == checksum) {
+        SERCOM0_USART_Write((char *)checksum_matched, sizeof(checksum_matched));
+    } else {
+        SERCOM0_USART_Write((char *)checksum_not_matched, sizeof(checksum_not_matched));
+    }
+#endif
+
     /* now we compare if checksums match. if they do, continue with the 
      * rest of normal bootup process. */
     if (checksum != hdr->crc32) {
@@ -464,6 +512,7 @@ void run_Application(void)
             return;
         }
     }
+    
     __set_MSP(msp);
     asm("bx %0"::"r" (reset_vector));
 }

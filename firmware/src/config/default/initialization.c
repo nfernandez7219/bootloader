@@ -129,8 +129,7 @@ void SYS_Initialize ( void* data )
     {
         run_Application();
     }
-
-
+    
     CLOCK_Initialize();
 
     EVSYS_Initialize();
@@ -140,10 +139,8 @@ void SYS_Initialize ( void* data )
 	SYSTICK_TimerInitialize();
     PAC_Initialize();
 
-
-
-
-
     NVIC_Initialize();
-
+    
+ 
+    
 }
